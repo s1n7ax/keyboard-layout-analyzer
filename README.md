@@ -12,11 +12,14 @@ Supported keyboard layouts are
 
 * qwerty
 * dvorak
+* halmak
+* workman
+* colemak
 
 ## How to Interpret
 
-* **Finger Movements *(Lower the better)*** - User has to move the finger to press the
-  key.
+* **Finger Movements *(Lower the better)*** - User has to move the finger to
+press the key.
 * **Same Finger Usage *(Lower the better)*** - Same finger usage to type different
   letters ("lo" in "hello" with QWERTY).
 * **No Movement *(Higher the better)*** - Move finger movement needed to type these
@@ -24,21 +27,21 @@ Supported keyboard layouts are
 
 ## Sample Output 1
 
-**Command:** `cargo build --release && echo hello | target/release/keyboard-layout-analyzer`
+**Command:** `echo hello | keyboard-layout-analyzer`
 
-Following are the analysis of finger movements for typing "hello"
+Following are the results for for typing "hello".
 
 ```bash
 ---------------------------------------------------------------------------------------------------
-| CATEGORY                       | HALMAK     | WORKMAN    | QWERTY     | DVORAK     | COLEMAK    |
+| CATEGORY                       | QWERTY     | DVORAK     | HALMAK     | WORKMAN    | COLEMAK    |
 ---------------------------------------------------------------------------------------------------
-| Finger Movements               | 2          | 2          | 3          | 2          | 3          |
-| Same Finger Usage              | 0          | 0          | 1          | 0          | 0          |
-| No Movement                    | 3          | 3          | 2          | 3          | 2          |
-| Up Movement                    | 2          | 0          | 2          | 2          | 2          |
-| Down Movement                  | 0          | 2          | 0          | 0          | 0          |
+| Finger Movements               | 3          | 2          | 2          | 2          | 3          |
+| Same Finger Usage              | 1          | 0          | 0          | 0          | 0          |
+| No Movement                    | 2          | 3          | 3          | 3          | 2          |
+| Up Movement                    | 2          | 2          | 2          | 0          | 2          |
+| Down Movement                  | 0          | 0          | 0          | 2          | 0          |
 | Right Movement                 | 0          | 0          | 0          | 0          | 0          |
-| Left Movement                  | 0          | 0          | 1          | 0          | 1          |
+| Left Movement                  | 1          | 0          | 0          | 0          | 1          |
 | Top Right Movement             | 0          | 0          | 0          | 0          | 0          |
 | Top Left Movement              | 0          | 0          | 0          | 0          | 0          |
 | Bottom Right Movement          | 0          | 0          | 0          | 0          | 0          |
@@ -46,9 +49,10 @@ Following are the analysis of finger movements for typing "hello"
 ```
 
 ## Sample Output 2
-**Command:** `cargo build --release && time cat /<path>/**/*.java | target/release/keyboard-layout-analyzer`
 
-Following are the results for all the text written in one of my Java projects
+**Command:** `cat /<path>/**/*.java | keyboard-layout-analyzer`
+
+Following are the results for one of my Java projects.
 
 ```bash
 ---------------------------------------------------------------------------------------------------
