@@ -1,24 +1,39 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::io;
 
 fn main() {
-    let _args = std::env::args();
     let keyboard = KeyboardBuilder::build([
         ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
         ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';'],
         ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
     ]);
 
-    let mut key_logger = KeyLogger::new(keyboard);
-    KeyLogger::log(&mut key_logger, &'h');
-    KeyLogger::log(&mut key_logger, &'h');
-    KeyLogger::log(&mut key_logger, &'g');
-    KeyLogger::log(&mut key_logger, &'a');
-    KeyLogger::log(&mut key_logger, &'s');
-    KeyLogger::log(&mut key_logger, &'d');
+    let mut key_logger: KeyLogger = KeyLogger::new(keyboard);
+
+    loop {
+        let mut input = String::new();
+
+        match io::stdin().read_line(&mut input) {
+            Ok(len) => {
+                if len == 0 {
+                    break;
+                } else {
+                    for char in input.chars() {
+                        key_logger.log(&char);
+                    }
+                }
+            }
+
+            Err(error) => {
+                eprintln!("error: {}", error);
+                return;
+            }
+        }
+    }
 
     let mut report = LogReport::new();
-    report.add_logger(String::from("QWERTY"), key_logger);
+    report.add_logger(String::from("QWERTY"), &mut key_logger);
     report.print();
 }
 
@@ -109,7 +124,7 @@ impl KeyLogger {
         }
     }
 
-    fn log(&mut self, char: &char) {
+    fn log(&mut self, char: &char) -> () {
         if let Some(key) = self.keyboard.get(char) {
             match self.finger_movements_map.entry(key.pos) {
                 Entry::Occupied(mut o) => o.insert(o.get() + 1),
@@ -134,13 +149,13 @@ impl KeyLogger {
     }
 }
 
-struct LogReport {
-    key_loggers: HashMap<String, KeyLogger>,
+struct LogReport<'a> {
+    key_loggers: HashMap<String, &'a KeyLogger>,
     row_headers: Vec<String>,
     movement_header_map: Vec<((i8, i8), String)>,
 }
 
-impl LogReport {
+impl<'a> LogReport<'a> {
     fn new() -> Self {
         let movement_header_map: Vec<((i8, i8), String)> = vec![
             ((0, 0), "No Movement".to_string()),
@@ -173,7 +188,7 @@ impl LogReport {
         }
     }
 
-    fn add_logger(&mut self, name: String, logger: KeyLogger) {
+    fn add_logger(&mut self, name: String, logger: &'a KeyLogger) {
         self.key_loggers.insert(name, logger);
     }
 
@@ -258,12 +273,6 @@ impl LogReport {
                 return row;
             })
             .collect()
-    }
-}
-
-impl Default for LogReport {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
@@ -356,7 +365,7 @@ mod keyboard_tests {
                 });
 
                 let mut log_report = LogReport::new();
-                log_report.add_logger("QWERTY".to_string(), key_logger);
+                log_report.add_logger("QWERTY".to_string(), &key_logger);
 
                 let actual_res = &log_report.get_log_data_from_key_logger()[0];
 
