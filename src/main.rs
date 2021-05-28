@@ -34,11 +34,11 @@ fn main() {
     ]);
 
     let mut loggers: [(&str, KeyLogger); 5] = [
-        ("DVORAK", KeyLogger::new(dvorak)),
         ("QWERTY", KeyLogger::new(qwerty)),
-        ("COLEMAK ", KeyLogger::new(colemak)),
+        ("DVORAK", KeyLogger::new(dvorak)),
         ("HALMAK", KeyLogger::new(halmak)),
         ("WORKMAN", KeyLogger::new(workman)),
+        ("COLEMAK ", KeyLogger::new(colemak)),
     ];
 
     loop {
@@ -188,7 +188,8 @@ impl KeyLogger {
 }
 
 struct LogReport<'a> {
-    key_loggers: HashMap<String, &'a KeyLogger>,
+    //key_loggers: HashMap<String, &'a KeyLogger>,
+    key_loggers: Vec<(String, &'a KeyLogger)>,
     row_headers: Vec<String>,
     movement_header_map: Vec<((i8, i8), String)>,
 }
@@ -220,19 +221,19 @@ impl<'a> LogReport<'a> {
         );
 
         LogReport {
-            key_loggers: HashMap::new(),
+            key_loggers: Vec::new(),
             row_headers,
             movement_header_map,
         }
     }
 
     fn add_logger(&mut self, name: String, logger: &'a KeyLogger) {
-        self.key_loggers.insert(name, logger);
+        self.key_loggers.push((name, logger));
     }
 
     fn print(&self) {
         let table_data = self.get_table_body_data();
-        self.print_table_headers(&self.get_table_header_data());
+        self.print_table_headers(&self.get_logger_names());
         self.print_table_body(&self.row_headers, &table_data);
     }
 
@@ -263,15 +264,18 @@ impl<'a> LogReport<'a> {
         println!("{}", "-".repeat(str.len()));
     }
 
-    fn get_table_header_data(&self) -> Vec<String> {
-        self.key_loggers.keys().map(|key| key.to_owned()).collect()
+    fn get_logger_names(&self) -> Vec<String> {
+        self.key_loggers
+            .iter()
+            .map(|(name, _)| name.to_owned())
+            .collect()
     }
 
     fn get_table_body_data(&self) -> Vec<Vec<usize>> {
         // rotate the matrix
         let mut data_table: Vec<Vec<usize>> = Vec::new();
         let logger_count = self.key_loggers.len();
-        let log_data = self.get_log_data_from_key_logger();
+        let log_data = self.get_logger_data();
 
         for cell_idx in 0..11 {
             let mut row: Vec<usize> = Vec::with_capacity(logger_count);
@@ -286,10 +290,10 @@ impl<'a> LogReport<'a> {
         return data_table;
     }
 
-    fn get_log_data_from_key_logger(&self) -> Vec<Vec<usize>> {
+    fn get_logger_data(&self) -> Vec<Vec<usize>> {
         self.key_loggers
-            .values()
-            .map(|logger| -> Vec<usize> {
+            .iter()
+            .map(|(_, logger)| -> Vec<usize> {
                 let mut row: Vec<usize> = Vec::new();
 
                 // total finger movements
@@ -407,7 +411,7 @@ mod keyboard_tests {
                 let mut log_report = LogReport::new();
                 log_report.add_logger("QWERTY".to_string(), &key_logger);
 
-                let actual_res = &log_report.get_log_data_from_key_logger()[0];
+                let actual_res = &log_report.get_logger_data()[0];
 
                 println!("{:?}\n{:?}", actual_res, expected_res);
 
