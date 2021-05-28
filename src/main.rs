@@ -15,9 +15,30 @@ fn main() {
         [';', 'q', 'j', 'k', 'x', 'b', 'm', 'w', 'v', 'z'],
     ]);
 
-    let mut loggers: [(&str, KeyLogger); 2] = [
+    let colemak = KeyboardBuilder::build([
+        ['q', 'w', 'f', 'p', 'g', 'j', 'l', 'u', 'y', ';'],
+        ['a', 'r', 's', 't', 'd', 'h', 'n', 'e', 'i', 'o'],
+        ['z', 'x', 'c', 'v', 'b', 'k', 'm', ',', '.', '/'],
+    ]);
+
+    let halmak = KeyboardBuilder::build([
+        ['w', 'l', 'r', 'b', 'z', ';', 'q', 'u', 'd', 'j'],
+        ['s', 'h', 'n', 't', ',', '.', 'a', 'e', 'o', 'i'],
+        ['f', 'm', 'v', 'c', '/', 'g', 'p', 'x', 'k', 'y'],
+    ]);
+
+    let workman = KeyboardBuilder::build([
+        ['q', 'd', 'r', 'w', 'b', 'j', 'f', 'u', 'p', ';'],
+        ['a', 's', 'h', 't', 'g', 'y', 'n', 'e', 'o', 'i'],
+        ['z', 'x', 'm', 'c', 'v', 'k', 'l', ',', '.', '/'],
+    ]);
+
+    let mut loggers: [(&str, KeyLogger); 5] = [
         ("DVORAK", KeyLogger::new(dvorak)),
         ("QWERTY", KeyLogger::new(qwerty)),
+        ("COLEMAK ", KeyLogger::new(colemak)),
+        ("HALMAK", KeyLogger::new(halmak)),
+        ("WORKMAN", KeyLogger::new(workman)),
     ];
 
     loop {
@@ -219,10 +240,10 @@ impl<'a> LogReport<'a> {
         data_table.iter().enumerate().for_each(|(idx, row)| {
             let mut str: String = String::from("");
 
-            str.push_str(&format!("{:<30} | ", row_headers[idx]));
+            str.push_str(&format!("| {:<30} |", row_headers[idx]));
 
             row.iter()
-                .for_each(|row| str.push_str(&format!("{:<15} | ", row)));
+                .for_each(|row| str.push_str(&format!(" {:<10} |", row)));
 
             println!("{}", str);
         });
@@ -231,13 +252,15 @@ impl<'a> LogReport<'a> {
     fn print_table_headers(&self, names: &Vec<String>) {
         let mut str: String = String::new();
 
-        str.push_str(&format!("{:<30} | ", "CATEGORY"));
+        str.push_str(&format!("| {:<30} |", "CATEGORY"));
 
         for name in names {
-            str.push_str(&format!("{:<15} | ", name));
+            str.push_str(&format!(" {:<10} |", name));
         }
 
+        println!("{}", "-".repeat(str.len()));
         println!("{}", str);
+        println!("{}", "-".repeat(str.len()));
     }
 
     fn get_table_header_data(&self) -> Vec<String> {
