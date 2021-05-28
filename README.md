@@ -13,26 +13,56 @@ Supported keyboard layouts are
 * qwerty
 * dvorak
 
-## Sample output
+## How to Interpret
 
-* Finger Movements (Lower the better) - User has to move the finger to press the
+* **Finger Movements *(Lower the better)*** - User has to move the finger to press the
   key.
-* Same Finger Usage (Lower the better) - Same finger usage to type different
+* **Same Finger Usage *(Lower the better)*** - Same finger usage to type different
   letters ("lo" in "hello" with QWERTY).
-* No Movement (Higher the better) - Move finger movement needed to type these
+* **No Movement *(Higher the better)*** - Move finger movement needed to type these
   letters because the finger should be on the letter when touch typing
 
+## Sample Output 1
+
+**Command:** `cargo build --release && echo hello | target/release/keyboard-layout-analyzer`
+
+Following are the analysis of finger movements for typing "hello"
+
 ```bash
-CATEGORY                       | DVORAK          | QWERTY          |
-Finger Movements               | 20884           | 32852           |
-Same Finger Usage              | 2260            | 3365            |
-No Movement                    | 21754           | 9786            |
-Up Movement                    | 10014           | 18583           |
-Down Movement                  | 3216            | 4434            |
-Right Movement                 | 3597            | 1148            |
-Left Movement                  | 1268            | 685             |
-Top Right Movement             | 638             | 3651            |
-Top Left Movement              | 773             | 638             |
-Bottom Right Movement          | 495             | 883             |
-Bottom Left Movement           | 883             | 2830            |
+---------------------------------------------------------------------------------------------------
+| CATEGORY                       | HALMAK     | WORKMAN    | QWERTY     | DVORAK     | COLEMAK    |
+---------------------------------------------------------------------------------------------------
+| Finger Movements               | 2          | 2          | 3          | 2          | 3          |
+| Same Finger Usage              | 0          | 0          | 1          | 0          | 0          |
+| No Movement                    | 3          | 3          | 2          | 3          | 2          |
+| Up Movement                    | 2          | 0          | 2          | 2          | 2          |
+| Down Movement                  | 0          | 2          | 0          | 0          | 0          |
+| Right Movement                 | 0          | 0          | 0          | 0          | 0          |
+| Left Movement                  | 0          | 0          | 1          | 0          | 1          |
+| Top Right Movement             | 0          | 0          | 0          | 0          | 0          |
+| Top Left Movement              | 0          | 0          | 0          | 0          | 0          |
+| Bottom Right Movement          | 0          | 0          | 0          | 0          | 0          |
+| Bottom Left Movement           | 0          | 0          | 0          | 0          | 0          |
+```
+
+## Sample Output 2
+**Command:** `cargo build --release && time cat /<path>/**/*.java | target/release/keyboard-layout-analyzer`
+
+Following are the results for all the text written in a Java project
+
+```bash
+---------------------------------------------------------------------------------------------------
+| CATEGORY                       | HALMAK     | DVORAK     | QWERTY     | COLEMAK    | WORKMAN    |
+---------------------------------------------------------------------------------------------------
+| Finger Movements               | 18677      | 20884      | 32852      | 15899      | 18677      |
+| Same Finger Usage              | 2813       | 2260       | 3365       | 1518       | 2180       |
+| No Movement                    | 23961      | 21754      | 9786       | 26739      | 23961      |
+| Up Movement                    | 9840       | 10014      | 18583      | 7183       | 9288       |
+| Down Movement                  | 7676       | 3216       | 4434       | 4434       | 5534       |
+| Right Movement                 | 0          | 3597       | 1148       | 1268       | 1148       |
+| Left Movement                  | 0          | 1268       | 685        | 685        | 638        |
+| Top Right Movement             | 13         | 638        | 3651       | 1148       | 883        |
+| Top Left Movement              | 0          | 773        | 638        | 142        | 142        |
+| Bottom Right Movement          | 0          | 495        | 883        | 883        | 888        |
+| Bottom Left Movement           | 1148       | 883        | 2830       | 156        | 156        |
 ```
