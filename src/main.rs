@@ -1,8 +1,7 @@
+use regex::Regex;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::io;
-use regex::Regex;
-
 
 fn main() {
     let qwerty = KeyboardBuilder::build([
@@ -22,6 +21,8 @@ fn main() {
         ("QWERTY", KeyLogger::new(qwerty)),
     ];
 
+    let re = Regex::new(r"[a-zA-Z]").unwrap();
+
     loop {
         let mut input = String::new();
 
@@ -31,9 +32,6 @@ fn main() {
                     break;
                 } else {
                     for char in input.to_lowercase().chars() {
-
-                        let re = Regex::new(r"[a-zA-Z]").unwrap();
-
                         if !re.is_match(&char.to_string()) {
                             continue;
                         }
@@ -85,8 +83,8 @@ impl KeyboardBuilder {
                         char.to_owned(),
                         Key::new(
                             char.to_owned(),
-                            KeyboardBuilder::get_finger(x as u8),
-                            KeyboardBuilder::get_pos(x as u8, y as u8),
+                            Self::get_finger(x as u8),
+                            Self::get_pos(x as u8, y as u8),
                         ),
                     )
                 })
@@ -149,9 +147,7 @@ impl KeyLogger {
     fn log(&mut self, char: &char) -> () {
         if let Some(key) = self.keyboard.get(char) {
             match self.finger_movements_map.entry(key.pos) {
-                Entry::Occupied(mut o) => {
-                    o.insert(o.get() + 1)
-                },
+                Entry::Occupied(mut o) => o.insert(o.get() + 1),
                 Entry::Vacant(v) => *v.insert(1u32),
             };
 
@@ -182,20 +178,20 @@ struct LogReport<'a> {
 impl<'a> LogReport<'a> {
     fn new() -> Self {
         let movement_header_map: Vec<((i8, i8), String)> = vec![
-            ((0, 0), "No Movement".to_string()),
-            ((0, 1), "Up Movement".to_string()),
-            ((0, -1), "Down Movement".to_string()),
-            ((1, 0), "Right Movement".to_string()),
-            ((-1, 0), "Left Movement".to_string()),
-            ((1, 1), "Top Right Movement".to_string()),
-            ((-1, 1), "Top Left Movement".to_string()),
-            ((1, -1), "Bottom Right Movement".to_string()),
-            ((-1, -1), "Bottom Left Movement".to_string()),
+            ((0, 0), String::from("No Movement")),
+            ((0, 1), String::from("Up Movement")),
+            ((0, -1), String::from("Down Movement")),
+            ((1, 0), String::from("Right Movement")),
+            ((-1, 0), String::from("Left Movement")),
+            ((1, 1), String::from("Top Right Movement")),
+            ((-1, 1), String::from("Top Left Movement")),
+            ((1, -1), String::from("Bottom Right Movement")),
+            ((-1, -1), String::from("Bottom Left Movement")),
         ];
 
         let mut row_headers: Vec<String> = vec![
-            "Finger Movements".to_string(),
-            "Same Finger Usage".to_string(),
+            String::from("Finger Movements"),
+            String::from("Same Finger Usage"),
         ];
 
         row_headers.append(
