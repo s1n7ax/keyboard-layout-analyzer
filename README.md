@@ -70,3 +70,41 @@ Following are the results for one of my Java projects.
 | Bottom Right Movement          | 0          | 495        | 883        | 883        | 888        |
 | Bottom Left Movement           | 1148       | 883        | 2830       | 156        | 156        |
 ```
+
+## Prerequisites
+
+* Rust
+
+## Install
+
+* Build and install
+
+```bash
+cargo install --path .
+```
+
+* Make sure the cargo bin is in PATH environment variable.
+
+```bash
+export PATH=$PATH:~/.cargo/bin
+```
+
+## How to Use
+
+* Pipe the content to `keyboard-layout-analyzer`.
+
+```bash
+echo hello | keyboard-layout-analyzer
+```
+
+* Pipe file content to `keyboard-layout-analyzer`.
+
+```bash
+cat text.txt | keyboard-layout-analyzer
+```
+
+* Pipe entire project `keyboard-layout-analyzer`.
+
+```bash
+cat <path>/**/*.txt | keyboard-layout-analyzer
+```
