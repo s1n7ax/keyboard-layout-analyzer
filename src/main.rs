@@ -1,6 +1,8 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::io;
+use regex::Regex;
+
 
 fn main() {
     let qwerty = KeyboardBuilder::build([
@@ -16,8 +18,8 @@ fn main() {
     ]);
 
     let mut loggers: [(&str, KeyLogger); 2] = [
-        ("QWERTY", KeyLogger::new(qwerty)),
         ("DVORAK", KeyLogger::new(dvorak)),
+        ("QWERTY", KeyLogger::new(qwerty)),
     ];
 
     loop {
@@ -28,7 +30,14 @@ fn main() {
                 if len == 0 {
                     break;
                 } else {
-                    for char in input.chars() {
+                    for char in input.to_lowercase().chars() {
+
+                        let re = Regex::new(r"[a-zA-Z]").unwrap();
+
+                        if !re.is_match(&char.to_string()) {
+                            continue;
+                        }
+
                         for i in 0..loggers.len() {
                             loggers[i].1.log(&char);
                         }
@@ -115,12 +124,12 @@ impl KeyboardBuilder {
 struct KeyLogger {
     keyboard: HashMap<char, Key>,
 
-    finger_movements_map: HashMap<(i8, i8), u8>,
-    finger_usage_map: HashMap<u8, u8>,
+    finger_movements_map: HashMap<(i8, i8), u32>,
+    finger_usage_map: HashMap<u8, u32>,
 
     prev_finger: Option<u8>,
     prev_char: char,
-    same_finger_usage: u8,
+    same_finger_usage: u32,
 }
 
 impl KeyLogger {
@@ -140,13 +149,15 @@ impl KeyLogger {
     fn log(&mut self, char: &char) -> () {
         if let Some(key) = self.keyboard.get(char) {
             match self.finger_movements_map.entry(key.pos) {
-                Entry::Occupied(mut o) => o.insert(o.get() + 1),
-                Entry::Vacant(v) => *v.insert(1u8),
+                Entry::Occupied(mut o) => {
+                    o.insert(o.get() + 1)
+                },
+                Entry::Vacant(v) => *v.insert(1u32),
             };
 
             match self.finger_usage_map.entry(key.finger) {
                 Entry::Occupied(mut o) => o.insert(o.get() + 1),
-                Entry::Vacant(v) => *v.insert(1u8),
+                Entry::Vacant(v) => *v.insert(1u32),
             };
 
             if !self.prev_finger.is_none()
@@ -211,14 +222,14 @@ impl<'a> LogReport<'a> {
         self.print_table_body(&self.row_headers, &table_data);
     }
 
-    fn print_table_body(&self, row_headers: &Vec<String>, data_table: &Vec<Vec<u8>>) {
+    fn print_table_body(&self, row_headers: &Vec<String>, data_table: &Vec<Vec<u32>>) {
         data_table.iter().enumerate().for_each(|(idx, row)| {
             let mut str: String = String::from("");
 
-            str.push_str(&format!("{:<30}", row_headers[idx]));
+            str.push_str(&format!("{:<30} | ", row_headers[idx]));
 
             row.iter()
-                .for_each(|row| str.push_str(&format!("{:<15}", row)));
+                .for_each(|row| str.push_str(&format!("{:<15} | ", row)));
 
             println!("{}", str);
         });
@@ -227,10 +238,10 @@ impl<'a> LogReport<'a> {
     fn print_table_headers(&self, names: &Vec<String>) {
         let mut str: String = String::new();
 
-        str.push_str(&format!("{:<30}", "CATEGORY"));
+        str.push_str(&format!("{:<30} | ", "CATEGORY"));
 
         for name in names {
-            str.push_str(&format!("{:<15}", name));
+            str.push_str(&format!("{:<15} | ", name));
         }
 
         println!("{}", str);
@@ -240,14 +251,14 @@ impl<'a> LogReport<'a> {
         self.key_loggers.keys().map(|key| key.to_owned()).collect()
     }
 
-    fn get_table_body_data(&self) -> Vec<Vec<u8>> {
+    fn get_table_body_data(&self) -> Vec<Vec<u32>> {
         // rotate the matrix
-        let mut data_table: Vec<Vec<u8>> = Vec::new();
+        let mut data_table: Vec<Vec<u32>> = Vec::new();
         let logger_count = self.key_loggers.len();
         let log_data = self.get_log_data_from_key_logger();
 
         for cell_idx in 0..11 {
-            let mut row: Vec<u8> = Vec::with_capacity(logger_count);
+            let mut row: Vec<u32> = Vec::with_capacity(logger_count);
 
             for row_idx in 0..logger_count {
                 row.insert(row_idx, log_data[row_idx][cell_idx]);
@@ -259,11 +270,11 @@ impl<'a> LogReport<'a> {
         return data_table;
     }
 
-    fn get_log_data_from_key_logger(&self) -> Vec<Vec<u8>> {
+    fn get_log_data_from_key_logger(&self) -> Vec<Vec<u32>> {
         self.key_loggers
             .values()
-            .map(|logger| -> Vec<u8> {
-                let mut row: Vec<u8> = Vec::new();
+            .map(|logger| -> Vec<u32> {
+                let mut row: Vec<u32> = Vec::new();
 
                 // total finger movements
                 row.push(
@@ -280,7 +291,7 @@ impl<'a> LogReport<'a> {
 
                 // individual finger movements
                 self.movement_header_map.iter().for_each(|(key, _)| {
-                    row.push(*logger.finger_movements_map.get(key).unwrap_or(&0u8))
+                    row.push(*logger.finger_movements_map.get(key).unwrap_or(&0u32))
                 });
 
                 return row;
@@ -331,7 +342,7 @@ mod keyboard_tests {
                 key_logger.log(char);
 
                 match key_logger.finger_movements_map.get(entry.0) {
-                    Some(i) => assert_eq!(*i, idx as u8 + 1),
+                    Some(i) => assert_eq!(*i, idx as u32 + 1),
                     None => panic!("movement {:?} not found", entry.0),
                 }
             })
