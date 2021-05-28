@@ -3,13 +3,22 @@ use std::collections::HashMap;
 use std::io;
 
 fn main() {
-    let keyboard = KeyboardBuilder::build([
+    let qwerty = KeyboardBuilder::build([
         ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
         ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';'],
         ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
     ]);
 
-    let mut key_logger: KeyLogger = KeyLogger::new(keyboard);
+    let dvorak = KeyboardBuilder::build([
+        ['\'', ',', '.', 'p', 'y', 'f', 'g', 'c', 'r', 'l'],
+        ['a', 'o', 'e', 'u', 'i', 'd', 'h', 't', 'n', 's'],
+        [';', 'q', 'j', 'k', 'x', 'b', 'm', 'w', 'v', 'z'],
+    ]);
+
+    let mut loggers: [(&str, KeyLogger); 2] = [
+        ("QWERTY", KeyLogger::new(qwerty)),
+        ("DVORAK", KeyLogger::new(dvorak)),
+    ];
 
     loop {
         let mut input = String::new();
@@ -20,7 +29,9 @@ fn main() {
                     break;
                 } else {
                     for char in input.chars() {
-                        key_logger.log(&char);
+                        for i in 0..loggers.len() {
+                            loggers[i].1.log(&char);
+                        }
                     }
                 }
             }
@@ -33,7 +44,9 @@ fn main() {
     }
 
     let mut report = LogReport::new();
-    report.add_logger(String::from("QWERTY"), &mut key_logger);
+    loggers
+        .iter()
+        .for_each(|(name, logger)| report.add_logger(name.to_owned().to_owned(), logger));
     report.print();
 }
 
