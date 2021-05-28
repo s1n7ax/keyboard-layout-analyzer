@@ -48,7 +48,7 @@ Following are the analysis of finger movements for typing "hello"
 ## Sample Output 2
 **Command:** `cargo build --release && time cat /<path>/**/*.java | target/release/keyboard-layout-analyzer`
 
-Following are the results for all the text written in a Java project
+Following are the results for all the text written in one of my Java projects
 
 ```bash
 ---------------------------------------------------------------------------------------------------
