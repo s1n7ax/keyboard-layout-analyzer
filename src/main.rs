@@ -15,6 +15,12 @@ fn main() {
         [';', 'q', 'j', 'k', 'x', 'b', 'm', 'w', 'v', 'z'],
     ]);
 
+    let colemak_dh = KeyboardBuilder::build([
+        ['q', 'w', 'f', 'p', 'b', 'j', 'l', 'u', 'y', ';'],
+        ['a', 'r', 's', 't', 'g', 'm', 'n', 'e', 'i', 'o'],
+        ['z', 'x', 'c', 'd', 'v', 'k', 'h', ',', '.', '/'],
+    ]);
+
     let colemak = KeyboardBuilder::build([
         ['q', 'w', 'f', 'p', 'g', 'j', 'l', 'u', 'y', ';'],
         ['a', 'r', 's', 't', 'd', 'h', 'n', 'e', 'i', 'o'],
@@ -33,12 +39,13 @@ fn main() {
         ['z', 'x', 'm', 'c', 'v', 'k', 'l', ',', '.', '/'],
     ]);
 
-    let mut loggers: [(&str, KeyLogger); 5] = [
+    let mut loggers: [(&str, KeyLogger); 6] = [
         ("QWERTY", KeyLogger::new(qwerty)),
         ("DVORAK", KeyLogger::new(dvorak)),
         ("HALMAK", KeyLogger::new(halmak)),
         ("WORKMAN", KeyLogger::new(workman)),
-        ("COLEMAK ", KeyLogger::new(colemak)),
+        ("COLEMAK", KeyLogger::new(colemak)),
+        ("COLEMAK DH", KeyLogger::new(colemak_dh)),
     ];
 
     loop {
@@ -405,7 +412,7 @@ mod keyboard_tests {
                 let mut key_logger = get_key_logger();
 
                 word.chars().for_each(|char| {
-                    &key_logger.log(&char);
+                    key_logger.log(&char);
                 });
 
                 let mut log_report = LogReport::new();
